@@ -8,8 +8,8 @@ use esp_idf_svc::{eventloop::EspSystemEventLoop, nvs::EspDefaultNvsPartition, wi
 use std::{io::{Read, Write, Result}, cell::RefCell};
 use std::net::TcpStream;
 
-const SSID: &str = "bssm_guest";
-const PASSWORD: &str = "bssm_guest";
+const SSID: &str = "U+Net1094";
+const PASSWORD: &str = "EDAAJ1F#3C";
 
 pub const HOST: &str = "100.101.113.79";
 const PORT: u8 = 80;
@@ -19,6 +19,8 @@ pub fn setup() -> (
     EspWifi<'static>,
     Dht11<PinDriver<'static, AnyIOPin, InputOutput>>,
 ) {
+    esp_idf_sys::link_patches();
+
     let peripherals = Peripherals::take().unwrap();
     let sys_loop = EspSystemEventLoop::take().unwrap();
     let nvs = EspDefaultNvsPartition::take().unwrap();
@@ -50,6 +52,8 @@ pub fn setup() -> (
 }
 
 pub fn connect_server<'a>() -> Result<RefCell<TcpStream>> {
+    esp_idf_sys::link_patches();
+
     let mut stream = TcpStream::connect(format!("{}:{}", HOST, PORT))?;
     stream.write(&[1])?;
     let mut buffer = [0; 128];

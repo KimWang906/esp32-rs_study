@@ -1,4 +1,4 @@
-use esp32_rust::{connect_server, setup, HOST};
+use esp32_rust::{ setup, HOST, connect_server};
 use esp_idf_hal::delay::{Ets, FreeRtos};
 use std::{
     io::{Read, Write},
@@ -25,8 +25,10 @@ fn main() {
 
         match dht11.perform_measurement(&mut dht11_delay) {
             Ok(measurement) => {
-                let h = measurement.humidity as f32;
-                let temp = measurement.temperature as f32;
+                let h = measurement.humidity as f32 / 10.0;
+                let temp = measurement.temperature as f32 / 10.0;
+
+                println!("temp: {}C, humidity: {}%", temp, h);
 
                 let client = connect_server();
                 match client {
@@ -46,7 +48,7 @@ fn main() {
                                 .as_bytes(),
                             )
                             .unwrap();
-
+                        dbg!(&stream);
                         let t = Instant::now();
                         let d = Duration::from_millis(10000);
                         let bytes_available = stream.borrow().peek(&mut buffer).unwrap();
@@ -61,6 +63,7 @@ fn main() {
 
                         while bytes_available == 0 {
                             let read_data = stream.borrow_mut().read(&mut buffer).unwrap();
+                            dbg!(read_data);
                             println!(
                                 "{}",
                                 String::from_utf8(buffer[..read_data].to_vec()).unwrap()
